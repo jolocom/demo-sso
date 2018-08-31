@@ -1,12 +1,12 @@
 import * as React from 'react'
-import SSOComponent from '../components/SSO';
-import * as actions from '../../actions/';
-import { StoreState } from '../../types/index';
-import { connect } from 'react-redux';
+import { SSOComponent }from '../components/SSO'
+import * as actions from '../../actions/'
+import { StoreState } from '../../types/index'
+import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
 interface Props {
-  handleOnClick: () => any;
+  handleOnClick: () => void
 }
 
 interface State {
@@ -35,7 +35,7 @@ const mapStateToProps = (state: StoreState) => {
     isFetching: false,
     responseToken: '',
     clientId: '',
-    userData: []
+    userData: ['test']
   }
 }
 
@@ -46,4 +46,4 @@ const mapDispatchToProps = (dispatch: Dispatch<actions.SSOActions>) => {
   }
 }
 
-export const SSO = connect(mapStateToProps, mapDispatchToProps)(SSOContainer);
+export const SSO = connect(mapStateToProps, mapDispatchToProps)(SSOContainer)

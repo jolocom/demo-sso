@@ -1,22 +1,22 @@
 {
   "compilerOptions": {
+    "types":["node"],
     "baseUrl": ".",
-    "outDir": "build/dist",
-    "module": "esnext",
+    "outDir": "./build/",
+    "module": "es2015",
     "target": "es5",
-    "lib": ["es6", "dom"],
+    "lib": ["dom", "es2015", "es2016"],
     "sourceMap": true,
-    "allowJs": true,
     "jsx": "react",
     "moduleResolution": "node",
     "rootDir": "src",
     "forceConsistentCasingInFileNames": true,
-    "noImplicitReturns": true,
-    "noImplicitThis": true,
     "noImplicitAny": true,
-    "strictNullChecks": true,
-    "suppressImplicitAnyIndexErrors": true,
-    "noUnusedLocals": true
+    "noImplicitReturns": true,
+    "skipLibCheck": true,
+    "noEmitHelpers": true,
+    "importHelpers": true,
+    "allowSyntheticDefaultImports": true,
   },
   "exclude": [
     "node_modules",
@@ -28,6 +28,6 @@
     "src/setupTests.ts"
   ],
   "include": [
-    "src/**/*"
+    "./src/**/*"
   ]
 }

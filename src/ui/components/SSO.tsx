@@ -10,7 +10,7 @@ interface State {
 
 }
 
-export default class SSOComponent extends React.Component<Props, State> {
+export class SSOComponent extends React.Component<Props, State> {
   render() {
 
     return (
@@ -19,6 +19,6 @@ export default class SSOComponent extends React.Component<Props, State> {
         onClick= {this.props.handleOnClick}>
           Login with Jolocom
       </Button>
-    );
+    )
   }
 }
