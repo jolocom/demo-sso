@@ -74,6 +74,7 @@ export class LandingComponent extends React.Component<Props, State> {
           open={this.props.selectedLoginProvider !== loginProviders.none}
           provider={this.props.selectedLoginProvider}
           qrCode={this.props.qrCode}
+          onClose={() => this.props.initiateLogin(loginProviders.none)}
         />
       </div>
     )

@@ -3,6 +3,7 @@ import { Dialog, DialogTitle, withStyles } from '@material-ui/core'
 import { loginProviders } from '../../reducers'
 
 interface Props {
+  onClose: () => void 
   open: boolean
   provider: loginProviders
   qrCode: string
@@ -15,6 +16,7 @@ const ModifiedDialog = withStyles({
     alignItems: 'center',
     justifyContent: 'center',
     padding: '1%',
+    minHeight: '300px',
     minWidth: '300px'
   },
 })(Dialog)
@@ -24,7 +26,11 @@ export const LoginDialog: React.SFC<Props> = props => {
   const { title, text } = getContentByProvider(props.provider)
 
   return (
-    <ModifiedDialog open={props.open}>
+    <ModifiedDialog 
+    onExit={props.onClose}
+    onEscapeKeyDown={props.onClose}
+    onBackdropClick={props.onClose}
+    open={props.open}>
       {/* {isJolocom ? <img src='/src/img/logo.svg' style={{height: '15px'}}/>: null} */}
       <DialogTitle> {title} </DialogTitle>
       <span> {text} </span>
@@ -43,12 +49,12 @@ const getContentByProvider = (loginProvider: loginProviders): returnValue => {
     case loginProviders.facebook:
       return {
         title: 'Log in with Facebook',
-        text: 'Nope'
+        text: 'Nope!'
       }
     case loginProviders.linkedIn:
       return {
         title: 'Log in with LinkedIn',
-        text: 'Do not'
+        text: 'Wrong button!'
       }
     case loginProviders.jolocom:
       return {

@@ -16,7 +16,7 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    justifyContent: 'space-between'
+    justifyContent: 'space-around'
   } as React.CSSProperties,
   banner: {
     background: 'url(src/img/banner.jpg) center no-repeat',
@@ -36,15 +36,26 @@ const styles = {
 
 export class DashboardContainer extends React.Component<Props, State> {
   render() {
-    const { givenName, familyName, did, email } = this.props.userData
+    // const { givenName, familyName, did, email } = this.props.userData
+    const givenName = 'Eugeniu'
+    const familyName = 'Rusu'
+    const email = 'eugeniu@jolocom.com'
 
     return (
       <div style={styles.container}>
         <div style={styles.banner} />
-        <div style={styles.text}> Thank you for participating in our alpha release! </div>
-        <div style={styles.text}> {`${givenName}, ${familyName}, ${did}, ${email}`}</div>
-        <div style={styles.text}>You shared the following data with us:</div>
+        <div style={{...styles.text, fontSize: '24px', fontWeight: 300}}> Thank you for participating in our alpha release! </div>
 
+        <div>
+          <div style={styles.text}>You shared the following data with us:</div>
+          <div style={styles.text}> Name: </div>
+          <div style={styles.text}> {`${givenName}, ${familyName}`}</div>
+        </div>
+
+        <div>
+          <div style={styles.text}> Email address: </div>
+          <div style={styles.text}> {email} </div>
+        </div>
         <div style={styles.text}>The data you shared is only used for rendering purposes on this page.</div>
         <div style={styles.text}>And we will forget it as soon as you click the button below.</div>
         <div style={{ textAlign: 'center' }}>
