@@ -39,12 +39,12 @@ export const LoginDialog: React.SFC<Props> = props => {
   )
 }
 
-interface returnValue {
+interface dialogContent {
   title: string
   text: string
 }
 
-const getContentByProvider = (loginProvider: loginProviders): returnValue => {
+const getContentByProvider = (loginProvider: loginProviders): dialogContent => {
   switch (loginProvider) {
     case loginProviders.facebook:
       return {

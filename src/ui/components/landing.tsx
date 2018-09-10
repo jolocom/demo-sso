@@ -40,16 +40,20 @@ export class LandingComponent extends React.Component<Props, State> {
         minHeight: '300px',
         borderRadius: '5px',
         backgroundColor: 'white'
-      } as React.CSSProperties
+      } as React.CSSProperties,
+      titleText: {
+        fontSize: '30px',
+        fontWeight: 300
+      }
     }
   }
 
   render() {
-    const { loginOptionsContainer, pageBackground } = this.getStyles()
+    const { titleText, loginOptionsContainer, pageBackground } = this.getStyles()
     return (
       <div style={pageBackground}>
         <div style={loginOptionsContainer}>
-          <div style={{fontSize: '30px', fontWeight: 300}}> Join Us </div>
+          <div style={titleText}> Join Us </div>
           <AbstractedButton
             color={'secondary'}
             text={'Log in with LinkedIn'}
