@@ -1,5 +1,9 @@
 # See https://help.github.com/ignore-files/ for more about ignoring files.
 
+# sensitive data
+/config.ts
+/dist
+/dump.rdb
 # dependencies
 /node_modules
 

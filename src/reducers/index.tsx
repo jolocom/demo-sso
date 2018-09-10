@@ -1,38 +1,49 @@
-import { SSOActions } from '../actions/index'
-import { StoreState } from '../types/index'
-import * as constants from '../actions/constants'
+export enum loginProviders {
+  none = 'none',
+  jolocom = 'jolocom',
+  linkedIn = 'linkedIn',
+  facebook = 'facebook'
+}
 
-// const initialState: StoreState = {
-//   qrCode: '',
-//   errorMsg: '',
-//   status: '',
-//   open: false,
-//   isFetching: false,
-//   responseToken: '',
-//   clientId: '',
-//   userData: []
-// }
+export interface DefaultState {
+  dialog: {
+    loginProvider: loginProviders
+    qrCode: string
+  }
+  userData: {
+    did: string
+    email: string
+    givenName: string
+    familyName: string
+  }
+}
 
-export function rootReducer (state: StoreState, action: SSOActions): StoreState {
+export const defaultState: DefaultState = {
+  dialog: {
+    loginProvider: loginProviders.none,
+    qrCode: ''
+  },
+  userData: {
+    did: '',
+    email: '',
+    givenName: '',
+    familyName: ''
+  }
+}
+
+export function rootReducer(state = defaultState, action: any) {
   switch (action.type) {
-    case constants.SET_CLIENT_ID:
-      return { ...state, clientId: state.clientId = action.value }
-    case constants.SHOW_QR_CODE:
-      return { ...state, open: true }
-    case constants.HIDE_QR_CODE:
-      return { ...state, open: false }
-    case constants.START_FETCH:
-      return { ...state, isFetching: true }
-    case constants.STOP_FETCH:
-      return { ...state, isFetching: false }
-    case constants.SET_RESPONSE_TOKEN:
-      return { ...state, responseToken: action.value }
-    case constants.SET_QR_CODE:
-      return { ...state, qrCode: action.value }
-    case constants.SET_CREDENTIALS:
-      return { ...state, isFetching: true }
-    case constants.LOGOUT:
+    case 'USER_DATA_SET':
+      return {...state, userData: {...action.value.data}}
+    case 'USER_DATA_RESET':
+      return {...state, userData: defaultState.userData}
+    case 'DIALOG_SHOW':
+      return {...state, dialog: { ...state.dialog, loginProvider: action.value }}
+    case 'DIALOG_HIDE':
+      return {...state, dialog: { ...state.dialog, loginProvider: loginProviders.none }}
+    case 'QR_CODE_SET':
+      return {...state, dialog: { ...state.dialog, qrCode: action.value}}
+    default:
       return state
-    default: return state
   }
 }
