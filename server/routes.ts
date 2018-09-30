@@ -1,9 +1,10 @@
-import path from 'path'
-import { JolocomLib } from 'jolocom-lib'
-import { requestCreationArgs } from '../config'
+import * as path from 'path'
+import { credentialRequirements } from '../config'
 import { Express } from 'express'
 import { validateCredentialSignatures, extractDataFromClaims } from '../src/utils/'
 import { RedisApi } from './types'
+import { JSONWebToken } from 'jolocom-lib/js/interactionFlows/JSONWebToken';
+import { CredentialRequest } from 'jolocom-lib/js/interactionFlows/credentialRequest/credentialRequest';
 
 export const configureRoutes = async (app: Express, redisApi: RedisApi) => {
 
@@ -18,30 +19,25 @@ export const configureRoutes = async (app: Express, redisApi: RedisApi) => {
     const { token } = req.body
 
     try {
-      const signedCredentialResponse = JolocomLib.parse.signedCredentialResponse.fromJWT(token)
-      const credentialResponse = signedCredentialResponse.getCredentialResponse()
+      const { credentialResponse } = await JSONWebToken.decode(token)
+      await validateCredentialSignatures(credentialResponse)
 
-      const validSignature = await signedCredentialResponse.validateSignature()
+      const credentialRequest = CredentialRequest.create({
+        callbackURL: '',
+        credentialRequirements
+      })
 
-      const credentialRequest = JolocomLib.unsigned.createCredentialRequest({ ...requestCreationArgs, callbackURL: '' })
-      const validCredentials = credentialResponse.satisfiesRequest(credentialRequest)
-
-      if (!validCredentials) {
+      if (!credentialResponse.satisfiesRequest(credentialRequest)) {
         throw new Error('The supplied credentials do not match the types of the requested credentials')
       }
 
-      if (!validSignature) {
-        throw new Error('The signature on the credential response is not valid')
-      }
-
-      await validateCredentialSignatures(credentialResponse)
-
       const userData = {
         ...extractDataFromClaims(credentialResponse),
-        did: signedCredentialResponse.getIssuer(),
+        did: credentialResponse.issuer,
         status: 'success'
       }
 
+      console.log('SETTING', clientId)
       await setAsync(clientId, JSON.stringify({ status: 'success', data: userData }))
 
       res.json('OK')
