@@ -1,53 +1,36 @@
-import { CredentialResponse } from 'jolocom-lib/js/credentialResponse/credentialResponse';
-import { SignedCredential } from 'jolocom-lib/js/credentials/signedCredential/signedCredential';
-import { IClaimMetadata } from 'jolocom-lib/js/credentials/credential/types';
-import { claimsMetadata } from 'jolocom-lib'
+import { CredentialResponse } from 'jolocom-lib/js/interactionFlows/credentialResponse/credentialResponse'
+import { JolocomLib } from 'jolocom-lib'
 
-export const validateCredentialSignatures = async (credentialResponse: CredentialResponse) => {
+export const validateCredentialSignatures = async (credentialResponse: CredentialResponse): Promise<boolean> => {
   const suppliedCredentials = credentialResponse.getSuppliedCredentials()
+  const registry = JolocomLib.registry.jolocom.create()
 
-  const credSignatureValidity = await Promise.all(
-    suppliedCredentials.map(suppliedCred => {
-      return SignedCredential.fromJSON(suppliedCred.credential).validateSignature()
-    })
-  )
+  const credSignatureValidity = await Promise.all(suppliedCredentials.map(cred => registry.validateSignature(cred)))
 
   if (!credSignatureValidity.every(entry => entry)) {
     throw new Error('Invalid signature on presented credentials')
   }
-}
 
-interface TypeMap {
-  [x: string]: IClaimMetadata
+  return true
 }
 
 interface IdentityData {
-  [key: string]: string
+  id?: string
   email: string
   givenName: string
   familyName: string
 }
 
 export const extractDataFromClaims = (credentialResponse: CredentialResponse): IdentityData => {
-  const typeToMetadataMap: TypeMap = {
-    ProofOfNameCredential: claimsMetadata.name,
-    ProofOfEmailCredential: claimsMetadata.emailAddress
-  }
-
-  const response: IdentityData = {
+  let response: IdentityData = {
     email: '',
     givenName: '',
     familyName: ''
   }
 
   credentialResponse.getSuppliedCredentials().forEach(credential => {
-    const metadata: IClaimMetadata = typeToMetadataMap[credential.type[1]]
-
-    if (metadata) {
-      metadata.fieldNames.forEach((fieldName: string) => {
-        response[fieldName] = credential.credential.claim[fieldName] as string
-      })
-    }
+    const claim = credential.getCredentialSection()
+    response = { ...response, ...claim }
   })
 
   return response
