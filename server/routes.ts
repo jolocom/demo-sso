@@ -37,7 +37,6 @@ export const configureRoutes = async (app: Express, redisApi: RedisApi) => {
         status: 'success'
       }
 
-      console.log('SETTING', clientId)
       await setAsync(clientId, JSON.stringify({ status: 'success', data: userData }))
 
       res.json('OK')
