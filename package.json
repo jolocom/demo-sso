@@ -44,8 +44,11 @@
     "url-loader": "^1.1.1"
   },
   "scripts": {
-    "start": "./node_modules/.bin/webpack-dev-server --progress",
-    "build": "webpack --progress",
+    "start": "yarn run build; yarn run redis:start; yarn run server; yarn run redis:stop",
+    "redis:start": "redis-server &",
+    "redis:stop": "redis-cli SHUTDOWN",
+    "server": "./node_modules/.bin/ts-node -O '{\"module\": \"commonjs\"}' ./server/server.ts",
+    "build": "webpack",
     "test": "node scripts/test.js --env=jsdom"
   },
   "devDependencies": {
@@ -62,6 +65,7 @@
     "@types/redis": "^2.8.6",
     "@types/socket.io": "^1.4.38",
     "@types/socket.io-client": "^1.4.32",
+    "copy-webpack-plugin": "^4.5.2",
     "html-webpack-plugin": "^3.2.0",
     "typescript": "^3.0.1",
     "webpack": "^4.17.2",

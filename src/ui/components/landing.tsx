@@ -21,8 +21,7 @@ export class LandingComponent extends React.Component<Props, State> {
         alignItems: 'center',
         justifyContent: 'center',
         height: '100vh',
-
-        backgroundImage: 'url("src/img/SSO_bg.jpg")',
+        backgroundImage: 'url("/assets/SSO_bg.jpg")',
         backgroundSize: 'cover',
         backgroundRepeat: 'no-repeat'
       } as React.CSSProperties,
@@ -107,7 +106,7 @@ const AbstractedButton: React.SFC<ButtonProps> = props => {
   const { color, onClick, imageName, text } = props
   return (
     <Button style={buttonStyle} variant="contained" color={color} onClick={onClick}>
-      <img height={16} style={{marginRight: '5%'}} src={`src/img/${imageName}`} />
+      <img height={16} style={{marginRight: '5%'}} src={`/assets/${imageName}`} />
       {text}
     </Button>
   )

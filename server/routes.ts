@@ -14,6 +14,11 @@ export const configureRoutes = async (app: Express, redisApi: RedisApi) => {
     res.sendFile(path.join(__dirname, '../dist/index.html'))
   })
 
+  app.get('/assets/:name', (req, res) => {
+    const { name } = req.params
+    res.sendFile(path.join(__dirname, `../dist/img/${name}`))
+  })
+
   app.post('/authentication/:clientId', async (req, res, next) => {
     const { clientId } = req.params
     const { token } = req.body

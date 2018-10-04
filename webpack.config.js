@@ -1,9 +1,11 @@
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
+
 
 const config = {
   context: path.resolve(__dirname, 'src'),
-  mode: 'development',
+  mode: 'production',
   entry: {
     app: './App.tsx'
   },
@@ -24,9 +26,8 @@ const config = {
     ]
   },
   plugins: [
-    new HtmlWebpackPlugin({
-      template: path.resolve(__dirname, 'src', 'index.html')
-    })
+    new CopyWebpackPlugin([ {from: 'img', to: '../dist/img'} ]),
+    new HtmlWebpackPlugin({ template: path.resolve(__dirname, 'src', 'index.html') })
   ]
 }
 

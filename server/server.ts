@@ -27,5 +27,6 @@ registry.authenticate(privKey).then(identityWallet => {
   configureSockets(server, identityWallet, new DbWatcher(getAsync), {getAsync, setAsync, delAsync})
 })
 
-
-server.listen(9000, () => {})
+server.listen(9000, () => {
+  console.log('Demo service started, listening on port 9000')
+})
