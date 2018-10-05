@@ -23,6 +23,7 @@ export const configureRoutes = async (app: Express, redisApi: RedisApi) => {
     const { clientId } = req.params
     const { token } = req.body
 
+    console.log(token)
     try {
       const { credentialResponse } = await JSONWebToken.decode(token)
       await validateCredentialSignatures(credentialResponse)
