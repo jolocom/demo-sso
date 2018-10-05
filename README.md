@@ -50,3 +50,5 @@ Now that we have the local service running, we can open our browsers and navigat
 If you tap the button to continue with Jolocom, the service will generate a credential request (as defined [here](https://jolocom-lib.readthedocs.io/en/latest/interactionFlows.html)), encode it as a QR code, and display the resulting image
 
 At this point the presented request can be scanned using the Jolocom SmartWallet in order to generate the corresponding credential response and share it with the service.
+
+<b>This repository also includes a script that can be run to simulate the client completing the authentication for testing and development purposes. Further documentation on which can be found [here](https://github.com/jolocom/demo-sso/tree/master/scripts)</b>
