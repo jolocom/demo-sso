@@ -19,7 +19,7 @@ const styles = {
     justifyContent: 'space-around'
   } as React.CSSProperties,
   banner: {
-    background: 'url(src/img/banner.jpg) center no-repeat',
+    background: 'url(/assets/banner.jpg) center no-repeat',
     height: '260px',
     width: '100%',
     backgroundSize: 'auto 100%'
@@ -40,10 +40,7 @@ const styles = {
 
 export class DashboardContainer extends React.Component<Props, State> {
   render() {
-    // const { givenName, familyName, did, email } = this.props.userData
-    const givenName = 'Eugeniu'
-    const familyName = 'Rusu'
-    const email = 'eugeniu@jolocom.com'
+    const { givenName, familyName, email } = this.props.userData
 
     return (
       <div style={styles.container}>

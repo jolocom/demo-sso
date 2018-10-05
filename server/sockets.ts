@@ -1,6 +1,6 @@
 import { SSO } from 'jolocom-lib/js/sso/index'
 import * as io from 'socket.io'
-import { credentialRequirements, baseUrl, frontEndUrl } from '../config'
+import { credentialRequirements, serviceUrl } from '../config'
 import * as http from 'http'
 import { DbWatcher } from './dbWatcher'
 import { IdentityWallet } from 'jolocom-lib/js/identityWallet/identityWallet'
@@ -15,14 +15,15 @@ export const configureSockets = (
 ) => {
   const { getAsync, delAsync } = redisApi
 
-  const baseSocket = io(server, { origins: frontEndUrl })
+  const baseSocket = io(server).origins('*:*')
+
   const qrCodeSocket = baseSocket.of('/qr-code')
   const dataSocket = baseSocket.of('/sso-status')
 
   qrCodeSocket.on('connection', async socket => {
     const { userId } = socket.handshake.query
 
-    const callbackURL = `${baseUrl}/authentication/${userId}`
+    const callbackURL = `${serviceUrl}/authentication/${userId}`
 
     const credentialRequest = await identityWallet.create.credentialRequestJSONWebToken({
       typ: InteractionType.CredentialRequest,

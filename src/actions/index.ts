@@ -1,7 +1,7 @@
 import { loginProviders } from '../reducers'
 import io from 'socket.io-client'
 import { push } from 'connected-react-router'
-import {baseUrl} from '../../config'
+import { serviceUrl } from '../../config'
 import { UserData } from '../ui/containers/types';
 
 export const showDialog = (providerName: loginProviders) => {
@@ -51,15 +51,14 @@ export const initiateLogin = (loginProvider: loginProviders) => {
 }
 
 const getQrCode = async (randomId: string): Promise<string> => {
-  const socket = io(`${baseUrl}/qr-code`, { query: { userId: randomId } })
-
+  const socket = io(`${serviceUrl}/qr-code`, { query: { userId: randomId } })
   return new Promise<string>(resolve => {
     socket.on(randomId, (qrCode: string) => resolve(qrCode))
   })
 }
 
 export const awaitUserData = async (randomId: string): Promise<string> => {
-  const socket = io(`${baseUrl}/sso-status`, {
+  const socket = io(`${serviceUrl}/sso-status`, {
     query: { userId: randomId }
   })
 

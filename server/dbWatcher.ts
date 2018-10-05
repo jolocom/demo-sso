@@ -24,8 +24,8 @@ export class DbWatcher extends EventEmitter {
 
   addSubscription(userId: string) {
     if (this.watchedKeys.indexOf(userId) < 0) {
+      console.log(` [DEBUG] : WATCHING FOR KEY ${userId}`)
       this.watchedKeys.push(userId)
     }
   }
 }
-
