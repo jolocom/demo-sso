@@ -19,7 +19,7 @@ const styles = {
     justifyContent: 'space-around'
   } as React.CSSProperties,
   banner: {
-    background: 'url(/assets/banner.jpg) center no-repeat',
+    background: 'url(/img/banner.jpg) center no-repeat',
     height: '260px',
     width: '100%',
     backgroundSize: 'auto 100%'
