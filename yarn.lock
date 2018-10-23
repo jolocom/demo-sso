@@ -5327,8 +5327,8 @@ jest@22.4.2:
     jest-cli "^22.4.2"
 
 jolocom-lib@^2.0.1:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/jolocom-lib/-/jolocom-lib-2.0.1.tgz#bc00c919e8693a486d977b94f29a08304d2a6bd3"
+  version "2.0.10"
+  resolved "https://registry.yarnpkg.com/jolocom-lib/-/jolocom-lib-2.0.10.tgz#75e261f61422ff5ddd1f2df5089fd65a87ece1c4"
   dependencies:
     base64url "^3.0.0"
     bip39 "^2.5.0"
@@ -8186,7 +8186,7 @@ sha.js@^2.4.0, sha.js@^2.4.8:
     inherits "^2.0.1"
     safe-buffer "^5.0.1"
 
-sha3@^1.1.0:
+sha3@^1.1.0, sha3@^1.2.2:
   version "1.2.2"
   resolved "https://registry.yarnpkg.com/sha3/-/sha3-1.2.2.tgz#a66c5098de4c25bc88336ec8b4817d005bca7ba9"
   dependencies:

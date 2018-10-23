@@ -5,7 +5,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin')
 
 const config = {
   context: path.resolve(__dirname, 'src'),
-  mode: 'production',
+  mode: 'development',
   entry: {
     app: './App.tsx'
   },

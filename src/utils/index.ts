@@ -35,3 +35,9 @@ export const extractDataFromClaims = (credentialResponse: CredentialResponse): I
 
   return response
 }
+
+export const randomString = (length: number) => {
+  return Math.random()
+    .toString(36)
+    .substr(2, length)
+}
