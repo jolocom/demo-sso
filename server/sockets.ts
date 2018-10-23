@@ -30,37 +30,17 @@ export const configureSockets = (
 
     await redisApi.setAsync(`ans:${didHash.digest('hex')}`, answer)
 
-    const tinkererToken = await identityWallet.create.signedCredential({
-      metadata: {
-        type: ['Credential', 'ProofOfTinkererCredential'],
-        name: 'Tinkerer',
-        context: [
-          {
-            ProofOfTinkererCredential: 'https://identity.jolocom.com/terms/ProofOfTinkererCredential'
-          }
-        ]
-      },
-      claim: {
-        note: 'Thank you for participating! This might come in handy later!'
-      },
-      subject: did
+    const credOffer = await identityWallet.create.credentialOfferRequestJSONWebToken({
+      typ: InteractionType.CredentialOfferRequest,
+      credentialOffer: {
+        instant: true,
+        challenge: '12345',
+        requestedInput: {},
+        callbackURL: `${serviceUrl}/receive/`
+      }
     })
 
-    const encodedCredential = await identityWallet.create
-      .credentialsReceiveJSONWebToken({
-        iss: identityWallet.getIdentity().getDID(),
-        typ: InteractionType.CredentialsReceive,
-        credentialsReceive: {
-          signedCredentials: [tinkererToken.toJSON()]
-        }
-      })
-      .encode()
-
-    const qrCode = await new SSO().JWTtoQR(encodedCredential, {
-      errorCorrectionLevel: 'L',
-      version: 40
-    })
-
+    const qrCode = await new SSO().JWTtoQR(credOffer.encode())
     socket.emit(did, qrCode)
   })
 

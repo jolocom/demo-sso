@@ -62,12 +62,12 @@ export const initiateLogin = (loginProvider: loginProviders) => {
 
 export const initiateReceiving = (did: string, answer: string) => {
   return async (dispatch: Function) => {
-    const qrCode = await getReceiveQrCode(did, answer)
+    const qrCode = await getOfferQrCode(did, answer)
     dispatch(setReceivedQr(qrCode))
   }
 }
 
-const getReceiveQrCode = async (did: string, answer: string): Promise<string> => {
+const getOfferQrCode = async (did: string, answer: string): Promise<string> => {
   const socket = io(`${serviceUrl}/qr-receive`, { query: { did, answer} })
   return new Promise<string>(resolve => {
     socket.on(did, (qrCode: string) => resolve(qrCode))
