@@ -8,9 +8,10 @@ import { CredentialRequest } from 'jolocom-lib/js/interactionFlows/credentialReq
 import { InteractionType } from 'jolocom-lib/js/interactionFlows/types'
 import { IdentityWallet } from 'jolocom-lib/js/identityWallet/identityWallet'
 import { JolocomLib } from 'jolocom-lib'
+const SHA3 = require('sha3')
 
 export const configureRoutes = async (app: Express, redisApi: RedisApi, iw: IdentityWallet) => {
-  const { setAsync } = redisApi
+  const { setAsync, getAsync } = redisApi
 
   app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../dist/index.html'))
@@ -38,11 +39,43 @@ export const configureRoutes = async (app: Express, redisApi: RedisApi, iw: Iden
     res.json({ token: credentialRequest })
   })
 
+  app.get('/credentialoffer', async(req, res) => {
+    const challenge = randomString(5)
+
+    await redisApi.setAsync(challenge, 'true')
+
+    const credOffer = await iw.create.credentialOfferRequestJSONWebToken({
+      typ: InteractionType.CredentialOfferRequest,
+      credentialOffer: {
+        instant: true,
+        challenge: challenge,
+        requestedInput: {},
+        callbackURL: `${serviceUrl}/receive/`
+      }
+    })
+
+    res.json({ token: credOffer.encode() })
+  })
+
+
   app.post('/receive', async (req, res) => {
     const { token } = req.body
 
     // Validates the signature on the JWT
     const credentialOfferReq = await JolocomLib.parse.interactionJSONWebToken.decode(token)
+    const did = credentialOfferReq.iss.substring(0, credentialOfferReq.iss.indexOf('#'))
+
+    const didHash = SHA3.SHA3Hash()
+    didHash.update(did)
+
+    const challenge = await getAsync(`ch:${didHash.digest('hex')}`)
+    const backup = await getAsync(credentialOfferReq.credentialOffer.challenge)
+
+    console.log(credentialOfferReq)
+    if (credentialOfferReq.credentialOffer.challenge !== challenge && !backup) {
+      res.status(401).send('incorrect challenge string')
+      return
+    }
 
     const tinkererToken = await iw.create.signedCredential({
       metadata: {

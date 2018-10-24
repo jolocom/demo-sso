@@ -29,13 +29,16 @@ export const configureSockets = (
     const didHash = SHA3.SHA3Hash()
     didHash.update(did)
 
+    const challenge = randomString(5)
+
+    await redisApi.setAsync(`ch:${didHash.digest('hex')}`, challenge)
     await redisApi.setAsync(`ans:${didHash.digest('hex')}`, answer)
 
     const credOffer = await identityWallet.create.credentialOfferRequestJSONWebToken({
       typ: InteractionType.CredentialOfferRequest,
       credentialOffer: {
         instant: true,
-        challenge: randomString(5),
+        challenge: challenge,
         requestedInput: {},
         callbackURL: `${serviceUrl}/receive/`
       }
