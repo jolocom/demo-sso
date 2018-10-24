@@ -6,6 +6,7 @@ import { DbWatcher } from './dbWatcher'
 import { IdentityWallet } from 'jolocom-lib/js/identityWallet/identityWallet'
 import { RedisApi } from './types'
 import { InteractionType } from 'jolocom-lib/js/interactionFlows/types'
+import { randomString } from '../src/utils';
 const SHA3 = require('sha3')
 
 export const configureSockets = (
@@ -34,7 +35,7 @@ export const configureSockets = (
       typ: InteractionType.CredentialOfferRequest,
       credentialOffer: {
         instant: true,
-        challenge: '12345',
+        challenge: randomString(5),
         requestedInput: {},
         callbackURL: `${serviceUrl}/receive/`
       }

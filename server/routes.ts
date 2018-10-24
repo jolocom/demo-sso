@@ -7,8 +7,6 @@ import { JSONWebToken } from 'jolocom-lib/js/interactionFlows/JSONWebToken'
 import { CredentialRequest } from 'jolocom-lib/js/interactionFlows/credentialRequest/credentialRequest'
 import { InteractionType } from 'jolocom-lib/js/interactionFlows/types'
 import { IdentityWallet } from 'jolocom-lib/js/identityWallet/identityWallet'
-import { claimsMetadata } from 'cred-types-jolocom-demo'
-import { Identity } from 'jolocom-lib/js/identity/identity'
 import { JolocomLib } from 'jolocom-lib'
 
 export const configureRoutes = async (app: Express, redisApi: RedisApi, iw: IdentityWallet) => {
@@ -59,6 +57,7 @@ export const configureRoutes = async (app: Express, redisApi: RedisApi, iw: Iden
       claim: {
         note: 'Thank you for attending our session at Web3!'
       },
+      // Handle this on the library side, provide both the key id, and the issuer's did.
       subject: credentialOfferReq.iss.substring(0, credentialOfferReq.iss.indexOf('#'))
     })
 
