@@ -9,6 +9,7 @@ import { configureRedisClient } from './redis'
 import { configureSockets } from './sockets'
 import { JolocomLib } from 'jolocom-lib'
 import { privateIdentityKey } from '../config'
+import { IdentityWallet } from 'jolocom-lib/js/identityWallet/identityWallet'
 
 const app = express()
 const server = new http.Server(app)
@@ -21,7 +22,7 @@ app.use(cors())
 const { getAsync, setAsync, delAsync } = configureRedisClient()
 const registry = JolocomLib.registry.jolocom.create()
 
-configureRoutes(app, {setAsync, getAsync, delAsync})
+configureRoutes(app, {setAsync, getAsync, delAsync}, new IdentityWallet)
 
 registry.authenticate(privateIdentityKey).then(identityWallet => {
   configureSockets(server, identityWallet, new DbWatcher(getAsync), {getAsync, setAsync, delAsync})

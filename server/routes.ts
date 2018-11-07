@@ -5,8 +5,14 @@ import { validateCredentialSignatures, extractDataFromClaims } from '../src/util
 import { RedisApi } from './types'
 import { JSONWebToken } from 'jolocom-lib/js/interactionFlows/JSONWebToken';
 import { CredentialRequest } from 'jolocom-lib/js/interactionFlows/credentialRequest/credentialRequest';
+import { InteractionType } from 'jolocom-lib/js/interactionFlows/types'
+import { IdentityWallet } from 'jolocom-lib/js/identityWallet/identityWallet'
 
-export const configureRoutes = async (app: Express, redisApi: RedisApi) => {
+export const configureRoutes = async (
+  app: Express,
+  redisApi: RedisApi,
+  identityWallet: IdentityWallet
+) => {
 
   const { setAsync } = redisApi
 
@@ -17,6 +23,18 @@ export const configureRoutes = async (app: Express, redisApi: RedisApi) => {
   app.get('/assets/:name', (req, res) => {
     const { name } = req.params
     res.sendFile(path.join(__dirname, `../dist/img/${name}`))
+  })
+
+  app.get('/credentialRequest', async (req, res) => {
+    const credentialRequest = await identityWallet.create.credentialRequestJSONWebToken({
+      typ: InteractionType.CredentialRequest,
+      credentialRequest: {
+        callbackURL: 'demosso://authenticate',
+        credentialRequirements
+      }
+    })
+    const jwtCR = credentialRequest.encode()
+    res.send(jwtCR)
   })
 
   app.post('/authentication/:clientId', async (req, res, next) => {
