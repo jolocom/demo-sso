@@ -29,7 +29,7 @@ export const configureRoutes = async (
     const credentialRequest = await identityWallet.create.credentialRequestJSONWebToken({
       typ: InteractionType.CredentialRequest,
       credentialRequest: {
-        callbackURL: 'demosso://authenticate',
+        callbackURL: 'demosso://authenticate/',
         credentialRequirements
       }
     })
