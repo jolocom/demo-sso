@@ -6,6 +6,8 @@ import { DbWatcher } from './dbWatcher'
 import { IdentityWallet } from 'jolocom-lib/js/identityWallet/identityWallet'
 import { RedisApi } from './types'
 import { InteractionType } from 'jolocom-lib/js/interactionFlows/types'
+import { randomString } from '../src/utils';
+const SHA3 = require('sha3')
 
 export const configureSockets = (
   server: http.Server,
@@ -18,7 +20,33 @@ export const configureSockets = (
   const baseSocket = io(server).origins('*:*')
 
   const qrCodeSocket = baseSocket.of('/qr-code')
+  const qrCodeReceive = baseSocket.of('/qr-receive')
   const dataSocket = baseSocket.of('/sso-status')
+
+  qrCodeReceive.on('connection', async socket => {
+    const { did, answer } = socket.handshake.query
+
+    const didHash = SHA3.SHA3Hash()
+    didHash.update(did)
+
+    const challenge = randomString(5)
+
+    await redisApi.setAsync(`ch:${didHash.digest('hex')}`, challenge)
+    await redisApi.setAsync(`ans:${didHash.digest('hex')}`, answer)
+
+    const credOffer = await identityWallet.create.credentialOfferRequestJSONWebToken({
+      typ: InteractionType.CredentialOfferRequest,
+      credentialOffer: {
+        instant: true,
+        challenge: challenge,
+        requestedInput: {},
+        callbackURL: `${serviceUrl}/receive/`
+      }
+    })
+
+    const qrCode = await new SSO().JWTtoQR(credOffer.encode())
+    socket.emit(did, qrCode)
+  })
 
   qrCodeSocket.on('connection', async socket => {
     const { userId } = socket.handshake.query

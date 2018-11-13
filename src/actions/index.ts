@@ -2,7 +2,8 @@ import { loginProviders } from '../reducers'
 import io from 'socket.io-client'
 import { push } from 'connected-react-router'
 import { serviceUrl } from '../../config'
-import { UserData } from '../ui/containers/types';
+import { UserData } from '../ui/containers/types'
+import { randomString } from '../utils'
 
 export const showDialog = (providerName: loginProviders) => {
   return {
@@ -31,6 +32,13 @@ export const setUserData = (data: UserData) => {
   }
 }
 
+export const setReceivedQr = (encodedImage: string) => {
+  return {
+    type: 'QR_RECEIVE_SET',
+    value: encodedImage
+  }
+}
+
 export const initiateLogin = (loginProvider: loginProviders) => {
   return async (dispatch: Function) => {
     if (loginProvider !== loginProviders.jolocom) {
@@ -44,11 +52,28 @@ export const initiateLogin = (loginProvider: loginProviders) => {
     dispatch(showDialog(loginProvider))
 
     const data = await awaitUserData(randomId)
+    const parsed = JSON.parse(data)
 
-    dispatch(setUserData(JSON.parse(data)))
+    dispatch(setQRCode(undefined))
+    dispatch(setUserData(parsed))
     dispatch(push('/dashboard'))
   }
 }
+
+export const initiateReceiving = (did: string, answer: string) => {
+  return async (dispatch: Function) => {
+    const qrCode = await getOfferQrCode(did, answer)
+    dispatch(setReceivedQr(qrCode))
+  }
+}
+
+const getOfferQrCode = async (did: string, answer: string): Promise<string> => {
+  const socket = io(`${serviceUrl}/qr-receive`, { query: { did, answer} })
+  return new Promise<string>(resolve => {
+    socket.on(did, (qrCode: string) => resolve(qrCode))
+  })
+}
+
 
 const getQrCode = async (randomId: string): Promise<string> => {
   const socket = io(`${serviceUrl}/qr-code`, { query: { userId: randomId } })
@@ -65,10 +90,4 @@ export const awaitUserData = async (randomId: string): Promise<string> => {
   return new Promise<string>(resolve => {
     socket.on(randomId, (data: string) => resolve(data))
   })
-}
-
-const randomString = (length: number) => {
-  return Math.random()
-    .toString(36)
-    .substr(2, length)
 }

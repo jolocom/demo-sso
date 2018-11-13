@@ -9,6 +9,7 @@ export interface DefaultState {
   dialog: {
     loginProvider: loginProviders
     qrCode: string
+    qrReceiveCode: string
   }
   userData: {
     did: string
@@ -21,7 +22,8 @@ export interface DefaultState {
 export const defaultState: DefaultState = {
   dialog: {
     loginProvider: loginProviders.none,
-    qrCode: ''
+    qrCode: '',
+    qrReceiveCode: ''
   },
   userData: {
     did: '',
@@ -43,6 +45,8 @@ export function rootReducer(state = defaultState, action: any) {
       return {...state, dialog: { ...state.dialog, loginProvider: loginProviders.none }}
     case 'QR_CODE_SET':
       return {...state, dialog: { ...state.dialog, qrCode: action.value}}
+    case 'QR_RECEIVE_SET':
+      return {...state, dialog: { ...state.dialog, qrReceiveCode: action.value}}
     default:
       return state
   }

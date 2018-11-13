@@ -31,7 +31,6 @@ export const LoginDialog: React.SFC<Props> = props => {
     onEscapeKeyDown={props.onClose}
     onBackdropClick={props.onClose}
     open={props.open}>
-      {/* {isJolocom ? <img src='/src/img/logo.svg' style={{height: '15px'}}/>: null} */}
       <DialogTitle> {title} </DialogTitle>
       <span> {text} </span>
       {isJolocom ? <img src={props.qrCode} width={'100%'}/> : null}
@@ -48,17 +47,17 @@ const getContentByProvider = (loginProvider: loginProviders): dialogContent => {
   switch (loginProvider) {
     case loginProviders.facebook:
       return {
-        title: 'Log in with Facebook',
+        title: 'Continue with Facebook',
         text: 'Nope!'
       }
     case loginProviders.linkedIn:
       return {
-        title: 'Log in with LinkedIn',
+        title: 'Continue with LinkedIn',
         text: 'Wrong button!'
       }
     case loginProviders.jolocom:
       return {
-        title: 'Log in with Jolocom',
+        title: 'Continue with Jolocom',
         text: 'Please scan the QR code'
       }
     default:

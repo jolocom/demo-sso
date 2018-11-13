@@ -1,12 +1,21 @@
 import React from 'react'
-import { List, ListItem, Button } from '@material-ui/core'
 import { connect } from 'react-redux'
-import { DefaultState } from '../../reducers'
+import { DefaultState, loginProviders } from '../../reducers/index'
 import { UserData } from './types'
+import { initiateReceiving, initiateLogin } from '../../actions/index'
+import { LoginDialog } from '../components/dialog'
+import { DashboardComponent } from '../components/dashboard'
 
-interface State {}
+interface State {
+  userInput: string
+  showDialog: boolean
+}
+
 interface Props {
   userData: UserData
+  qrReceiveCode: string
+  getCredential: (did: string, answer: string) => void
+  handleInput: (el: React.MouseEvent<HTMLElement>) => void
 }
 
 const styles = {
@@ -39,28 +48,44 @@ const styles = {
 }
 
 export class DashboardContainer extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props)
+
+    this.state = {
+      userInput: '',
+      showDialog: false
+    }
+  }
+
+  handleUserInput = (e: React.FormEvent<HTMLInputElement>) => {
+    this.setState({ userInput: e.currentTarget.value })
+  }
+
+  handleButtonClick = (el: React.MouseEvent<HTMLElement>) => {
+    this.props.getCredential(this.props.userData.did, this.state.userInput)
+    this.setState({showDialog: true})
+  }
+
   render() {
-    const { givenName, familyName, email } = this.props.userData
+    const { givenName, did } = this.props.userData
+    const { userInput, showDialog } = this.state
+    const { qrReceiveCode } = this.props
 
     return (
-      <div style={styles.container}>
-        <div style={styles.banner} />
-        <div style={{ ...styles.text, fontSize: '24px', fontWeight: 300 }}>
-          Thank you for participating in our alpha release!
-        </div>
-        <div>
-          <div style={styles.userDataText}>You shared the following data with us:</div>
-          <div style={styles.userDataText}> {`Name: ${givenName} ${familyName}`} </div>
-          <div style={styles.userDataText}> {`Email address: ${email}`}</div>
-        </div>
-        <div>
-          <div style={styles.text}>The data you shared is only used for rendering purposes on this page.</div>
-          <div style={styles.text}>And we will forget it as soon as you leave this page.</div>
-          <div style={styles.text}>Check out the source code </div>
-        </div>
-        <div style={{ textAlign: 'center' }}>
-          <Button style={styles.button}>Exit</Button>
-        </div>
+      <div>
+        <DashboardComponent
+          did={did}
+          name={givenName}
+          handleUserInput={this.handleUserInput}
+          inputValue={userInput}
+          handleButtonClick={this.handleButtonClick}
+        />
+        <LoginDialog
+          provider={loginProviders.jolocom}
+          open={showDialog && !!qrReceiveCode}
+          qrCode={qrReceiveCode}
+          onClose={() => {this.setState({showDialog: false})}}
+        />
       </div>
     )
   }
@@ -68,12 +93,16 @@ export class DashboardContainer extends React.Component<Props, State> {
 
 const mapStateToProps = (state: DefaultState) => {
   return {
-    userData: state.userData
+    userData: state.userData,
+    qrReceiveCode: state.dialog.qrReceiveCode
   }
 }
 
 const mapDispatchToProps = (dispatch: Function) => {
-  return {}
+  return {
+    getCredential: (did: string, answer: string) => dispatch(initiateReceiving(did, answer)),
+    initiateLogin: (provider: loginProviders) => dispatch(initiateLogin(provider))
+  }
 }
 
 export const Dashboard = connect(
