@@ -57,6 +57,17 @@ export const configureRoutes = async (app: Express, redisApi: RedisApi, iw: Iden
     res.json({ token: credOffer.encode() })
   })
 
+  app.get('/credentialRequest', async (req, res) => {
+    const credentialRequest = await iw.create.credentialRequestJSONWebToken({
+      typ: InteractionType.CredentialRequest,
+      credentialRequest: {
+        callbackURL: 'demosso://authenticate/',
+        credentialRequirements
+      }
+    })
+    const jwtCR = credentialRequest.encode()
+    res.send(jwtCR)
+  })
 
   app.post('/receive', async (req, res) => {
     const { token } = req.body
