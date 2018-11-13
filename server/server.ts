@@ -21,10 +21,9 @@ app.use(cors())
 const { getAsync, setAsync, delAsync } = configureRedisClient()
 const registry = JolocomLib.registry.jolocom.create()
 
-configureRoutes(app, {setAsync, getAsync, delAsync})
-
 registry.authenticate(privateIdentityKey).then(identityWallet => {
   configureSockets(server, identityWallet, new DbWatcher(getAsync), {getAsync, setAsync, delAsync})
+  configureRoutes(app, {setAsync, getAsync, delAsync}, identityWallet)
 })
 
 server.listen(9000, () => {
