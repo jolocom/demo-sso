@@ -18,6 +18,35 @@ interface Props {
   handleInput: (el: React.MouseEvent<HTMLElement>) => void
 }
 
+const styles = {
+  container: {
+    backgroundColor: 'black',
+    height: '100vh',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'space-around'
+  } as React.CSSProperties,
+  banner: {
+    background: 'url(/img/banner.jpg) center no-repeat',
+    height: '260px',
+    width: '100%',
+    backgroundSize: 'auto 100%'
+  },
+  button: {
+    margin: '0px',
+    borderRadius: '4px',
+    padding: '34dp 12dp 34dp 16dp'
+  },
+  text: {
+    color: 'white'
+  },
+  userDataText: {
+    color: 'white',
+    marginTop: '15px'
+  }
+}
+
 export class DashboardContainer extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props)
