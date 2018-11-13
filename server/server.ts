@@ -22,6 +22,7 @@ const { getAsync, setAsync, delAsync } = configureRedisClient()
 const registry = JolocomLib.registry.jolocom.create()
 
 registry.authenticate(privateIdentityKey).then(identityWallet => {
+  configureRoutes(app, {setAsync, getAsync, delAsync}, identityWallet)
   configureSockets(server, identityWallet, new DbWatcher(getAsync), {getAsync, setAsync, delAsync})
   configureRoutes(app, {setAsync, getAsync, delAsync}, identityWallet)
 })

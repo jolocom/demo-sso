@@ -55,13 +55,13 @@ export class LandingComponent extends React.Component<Props, State> {
           <div style={titleText}> Join Us </div>
           <AbstractedButton
             color={'secondary'}
-            text={'Log in with LinkedIn'}
+            text={'Continue with LinkedIn'}
             imageName={'LI_icon.svg'}
             onClick={() => this.props.initiateLogin(loginProviders.linkedIn)}
           />
           <AbstractedButton
             color={'secondary'}
-            text={'Log in with Facebook'}
+            text={'Continue with Facebook'}
             imageName={'FB_icon.svg'}
             onClick={() => this.props.initiateLogin(loginProviders.facebook)}
           />
@@ -86,12 +86,12 @@ export class LandingComponent extends React.Component<Props, State> {
 
 interface ButtonProps {
   color: PropTypes.Color
-  onClick: () => void
-  imageName: string
+  onClick: (e: React.MouseEvent<HTMLElement>) => void
+  imageName?: string
   text: string
 }
 
-const AbstractedButton: React.SFC<ButtonProps> = props => {
+export const AbstractedButton: React.SFC<ButtonProps> = props => {
   const buttonStyle = {
     borderRadius: '4px',
     display: 'flex',
@@ -100,13 +100,15 @@ const AbstractedButton: React.SFC<ButtonProps> = props => {
     width: '70%',
     height: '10%',
     marginTop: '20px',
-    marginBottom: '20px'
+    marginBottom: '20px',
+    marginRight: 'auto',
+    marginLeft: 'auto'
   }
 
   const { color, onClick, imageName, text } = props
   return (
     <Button style={buttonStyle} variant="contained" color={color} onClick={onClick}>
-      <img height={16} style={{marginRight: '5%'}} src={`/assets/${imageName}`} />
+      {props.imageName ? <img height={16} style={{ marginRight: '5%' }} src={`/assets/${imageName}`} /> : null}
       {text}
     </Button>
   )

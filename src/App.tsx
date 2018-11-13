@@ -40,6 +40,7 @@ ReactDOM.render(
     <ConnectedRouter history={history}>
       <MuiThemeProvider theme={theme}>
         <Switch>
+          {/* <Route exact path="/" component={Dashboard} /> */}
           <Route exact path="/" component={Landing} />
           <Route path="/dashboard" component={Dashboard} />
         </Switch>
