@@ -18,17 +18,18 @@ export const configureSockets = (
 
   const baseSocket = io(server).origins('*:*')
 
-  const qrCodeSocket = baseSocket.of('/qr-code')
-  const qrCodeReceive = baseSocket.of('/qr-receive')
+  const authQrCodeSocket = baseSocket.of('/qr-code')
+  const receiveQrCodeSocket = baseSocket.of('/qr-receive')
   const dataSocket = baseSocket.of('/sso-status')
 
-  qrCodeReceive.on('connection', async socket => {
+  receiveQrCodeSocket.on('connection', async socket => {
     const { did, answer, userId } = socket.handshake.query
 
     const didHash = SHA3.SHA3Hash()
     didHash.update(did)
     await redisApi.setAsync(`ans:${didHash.digest('hex')}`, answer)
 
+    console.log(serviceUrl)
     const credOfferRequest = await identityWallet.create.interactionTokens.request.offer(
       {
         instant: true,
@@ -37,12 +38,18 @@ export const configureSockets = (
       },
       password
     )
-    
+
     const qrCode = await new SSO().JWTtoQR(credOfferRequest.encode())
     socket.emit(did, qrCode)
   })
 
-  qrCodeSocket.on('connection', async socket => {
+  /**
+   * @description Used by the frontend to request credential request QR codes
+   * @param {string} userId - The session identifier
+   * @emits qrCode
+   */
+
+  authQrCodeSocket.on('connection', async socket => {
     const { userId } = socket.handshake.query
 
     const callbackURL = `${serviceUrl}/authentication/${userId}`
@@ -51,14 +58,14 @@ export const configureSockets = (
         callbackURL,
         credentialRequirements
       },
-      password  
+      password
     )
-    /**
-     * Credential request is saved for validation purpose for credential response
-     */
-    await redisApi.setAsync(userId, JSON.stringify({ credentialRequest }))
 
+    /** Encoded credential request is saved for validation purposes later */
+    console.log(credentialRequest.encode())
+    await redisApi.setAsync(userId, JSON.stringify({ userId, request: credentialRequest.encode(), status: 'pending' }))
     const qrCode = await new SSO().JWTtoQR(credentialRequest.encode())
+
     socket.emit(userId, qrCode)
   })
 
