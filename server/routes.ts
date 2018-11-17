@@ -122,7 +122,8 @@ export const configureRoutes = async (app: Express, redisApi: RedisApi, iw: Iden
             ]
           },
           claim: {
-            note: 'Thank you for attending our session at Web3!'
+            note:
+              'Thank you for your participation and contribution our ongoing efforts to make self sovereign identity a reality'
           },
           subject: keyIdToDid(credentialOfferResponse.issuer)
         },

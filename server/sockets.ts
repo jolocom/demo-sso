@@ -23,13 +23,12 @@ export const configureSockets = (
   const dataSocket = baseSocket.of('/sso-status')
 
   receiveQrCodeSocket.on('connection', async socket => {
-    const { did, answer, userId } = socket.handshake.query
+    const { did, answer } = socket.handshake.query
 
     const didHash = SHA3.SHA3Hash()
     didHash.update(did)
     await redisApi.setAsync(`ans:${didHash.digest('hex')}`, answer)
 
-    console.log(serviceUrl)
     const credOfferRequest = await identityWallet.create.interactionTokens.request.offer(
       {
         instant: true,
@@ -39,6 +38,7 @@ export const configureSockets = (
       password
     )
 
+    console.log(credOfferRequest.encode())
     const qrCode = await new SSO().JWTtoQR(credOfferRequest.encode())
     socket.emit(did, qrCode)
   })
@@ -62,7 +62,6 @@ export const configureSockets = (
     )
 
     /** Encoded credential request is saved for validation purposes later */
-    console.log(credentialRequest.encode())
     await redisApi.setAsync(userId, JSON.stringify({ userId, request: credentialRequest.encode(), status: 'pending' }))
     const qrCode = await new SSO().JWTtoQR(credentialRequest.encode())
 
