@@ -24,21 +24,18 @@ export const validateCredentialSignatures = async (credentialResponse: Credentia
 
 interface IdentityData {
   id?: string
-  email: string
   givenName: string
   familyName: string
 }
 
 export const extractDataFromClaims = (credentialResponse: CredentialResponse): IdentityData => {
   let response: IdentityData = {
-    email: '',
     givenName: '',
     familyName: ''
   }
 
   credentialResponse.suppliedCredentials.forEach(credential => {
-    const { claim } = credential
-    response = { ...response, ...claim }
+    response = { ...response, ...credential.claim }
   })
 
   return response
