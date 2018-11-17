@@ -8,6 +8,8 @@ import { IdentityWallet } from 'jolocom-lib/js/identityWallet/identityWallet'
 import { keyIdToDid } from 'jolocom-lib/js/utils/helper'
 import { CredentialResponse } from 'jolocom-lib/js/interactionTokens/credentialResponse'
 import { CredentialOffer } from 'jolocom-lib/js/interactionTokens/credentialOffer'
+import { JolocomLib } from 'jolocom-lib'
+import { CredentialRequest } from 'jolocom-lib/js/interactionTokens/credentialRequest'
 
 export const configureRoutes = async (app: Express, redisApi: RedisApi, iw: IdentityWallet, password: string) => {
   const { setAsync, getAsync } = redisApi
@@ -21,17 +23,20 @@ export const configureRoutes = async (app: Express, redisApi: RedisApi, iw: Iden
     res.sendFile(path.join(__dirname, `../dist/img/${name}`))
   })
 
- /**
-  * An authentication endpoint route for deep linking for demo-sso-mobile;
-  * the front end of demo-sso 'sends' the credential request via QR code using sockets 
-  */
-  
+  /**
+   * An authentication endpoint route for deep linking for demo-sso-mobile;
+   * the front end of demo-sso 'sends' the credential request via QR code using sockets
+   */
+
   app.get('/authentication-mobile/credentialRequest', async (req, res, next) => {
     try {
-      const credentialRequest = await iw.create.interactionTokens.request.share({
-        callbackURL: 'demosso://authenticate/',
-        credentialRequirements
-      }, password)
+      const credentialRequest = await iw.create.interactionTokens.request.share(
+        {
+          callbackURL: 'demosso://authenticate/',
+          credentialRequirements
+        },
+        password
+      )
 
       const jwtCR = credentialRequest.encode()
       res.send(jwtCR)
@@ -49,15 +54,17 @@ export const configureRoutes = async (app: Express, redisApi: RedisApi, iw: Iden
     const { token } = req.body
 
     try {
-      const decodedToken = JSONWebToken.decode<CredentialResponse>(token)    
-  
-      const data = await getAsync(clientId)
-      const { credentialRequest } = JSON.parse(data)
-      await iw.validateJWT(decodedToken, credentialRequest)
-      
+      const localRecord = await getAsync(clientId)
+      const encodedRequest: string = JSON.parse(localRecord).request
+
+      const request: JSONWebToken<CredentialRequest> = JolocomLib.parse.interactionToken.fromJWT(encodedRequest)
+      const response: JSONWebToken<CredentialResponse> = JolocomLib.parse.interactionToken.fromJWT(token)
+
+      await iw.validateJWT(response, request)
+
       const userData = {
-        ...extractDataFromClaims(decodedToken.interactionToken),
-        did: keyIdToDid(decodedToken.issuer),
+        ...extractDataFromClaims(response.interactionToken),
+        did: keyIdToDid(response.issuer),
         status: 'success'
       }
 
@@ -73,13 +80,16 @@ export const configureRoutes = async (app: Express, redisApi: RedisApi, iw: Iden
    * Route to get the credential offer request (broadcast)
    */
 
-  app.get('/credentialOffer', async(req, res, next) => {
+  app.get('/credentialOffer', async (req, res, next) => {
     try {
-      const credOffer = await iw.create.interactionTokens.request.offer({
-        instant: true,
-        requestedInput: {},
-        callbackURL: `${serviceUrl}/credentialReceive/`
-      }, password)
+      const credOffer = await iw.create.interactionTokens.request.offer(
+        {
+          instant: true,
+          requestedInput: {},
+          callbackURL: `${serviceUrl}/credentialReceive/`
+        },
+        password
+      )
 
       res.json({ token: credOffer.encode() })
     } catch (err) {
@@ -94,35 +104,42 @@ export const configureRoutes = async (app: Express, redisApi: RedisApi, iw: Iden
 
   app.post('/credentialReceive', async (req, res, next) => {
     const { token } = req.body
-   
-    const credentialOfferResponse = JSONWebToken.decode<CredentialOffer>(token) 
-    
-    try {  
+
+    const credentialOfferResponse = JSONWebToken.decode<CredentialOffer>(token)
+
+    try {
       await iw.validateJWT(credentialOfferResponse)
 
-      const tinkererToken = await iw.create.signedCredential({
-        metadata: {
-          type: ['Credential', 'ProofOfTinkererCredential'],
-          name: 'Tinkerer',
-          context: [
-            {
-              ProofOfTinkererCredential: 'https://identity.jolocom.com/terms/ProofOfTinkererCredential'
-            }
-          ]
+      const tinkererToken = await iw.create.signedCredential(
+        {
+          metadata: {
+            type: ['Credential', 'ProofOfTinkererCredential'],
+            name: 'Tinkerer',
+            context: [
+              {
+                ProofOfTinkererCredential: 'https://identity.jolocom.com/terms/ProofOfTinkererCredential'
+              }
+            ]
+          },
+          claim: {
+            note: 'Thank you for attending our session at Web3!'
+          },
+          subject: keyIdToDid(credentialOfferResponse.issuer)
         },
-        claim: {
-          note: 'Thank you for attending our session at Web3!'
-        },
-        subject: keyIdToDid(credentialOfferResponse.issuer)
-      }, password)
+        password
+      )
 
-      const credentialReceive = await iw.create.interactionTokens.response.issue({
+      const credentialReceive = await iw.create.interactionTokens.response.issue(
+        {
           signedCredentials: [tinkererToken.toJSON()]
-      }, password, credentialOfferResponse)
+        },
+        password,
+        credentialOfferResponse
+      )
 
       res.json({ token: credentialReceive.encode() })
     } catch (err) {
       next(err)
-    }    
+    }
   })
 }
