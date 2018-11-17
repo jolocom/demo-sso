@@ -8,7 +8,7 @@ import { configureRoutes } from './routes'
 import { configureRedisClient } from './redis'
 import { configureSockets } from './sockets'
 import { JolocomLib } from 'jolocom-lib'
-import { password, demoVault } from '../config'
+import { password, seed } from '../config'
 
 const app = express()
 const server = new http.Server(app)
@@ -20,8 +20,9 @@ app.use(cors())
 
 const { getAsync, setAsync, delAsync } = configureRedisClient()
 const registry = JolocomLib.registries.jolocom.create()
+const vaultedKeyProvider = new JolocomLib.keyProvider(seed, password)
 
-registry.authenticate(demoVault, {derivationPath: JolocomLib.KeyTypes.jolocomIdentityKey, encryptionPass: password})
+registry.authenticate(vaultedKeyProvider, {derivationPath: JolocomLib.KeyTypes.jolocomIdentityKey, encryptionPass: password})
 .then(identityWallet => {
   configureRoutes(app, {setAsync, getAsync, delAsync}, identityWallet, password)
   configureSockets(server, identityWallet, password, new DbWatcher(getAsync), {getAsync, setAsync, delAsync})

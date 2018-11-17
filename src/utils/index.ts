@@ -1,11 +1,19 @@
-import { CredentialResponse } from 'jolocom-lib/js/interactionFlows/credentialResponse/credentialResponse'
 import { JolocomLib } from 'jolocom-lib'
+import { getIssuerPublicKey } from 'jolocom-lib/js/utils/helper'
+import { CredentialResponse } from 'jolocom-lib/js/interactionTokens/credentialResponse'
 
 export const validateCredentialSignatures = async (credentialResponse: CredentialResponse): Promise<boolean> => {
-  const suppliedCredentials = credentialResponse.getSuppliedCredentials()
-  const registry = JolocomLib.registry.jolocom.create()
+  const suppliedCredentials = credentialResponse.suppliedCredentials
+  const registry = JolocomLib.registries.jolocom.create()
 
-  const credSignatureValidity = await Promise.all(suppliedCredentials.map(cred => registry.validateSignature(cred)))
+  /** The process of performing batch verifications will be improved soon */
+  const credSignatureValidity = await Promise.all(
+    suppliedCredentials.map(async cred => {
+      const issuer = await registry.resolve(cred.issuer)
+      const issuerPublicKey = getIssuerPublicKey(cred.signer.keyId, issuer.didDocument)
+      return JolocomLib.keyProvider.verifyDigestable(issuerPublicKey, cred)
+    })
+  )
 
   if (!credSignatureValidity.every(entry => entry)) {
     throw new Error('Invalid signature on presented credentials')
@@ -28,8 +36,8 @@ export const extractDataFromClaims = (credentialResponse: CredentialResponse): I
     familyName: ''
   }
 
-  credentialResponse.getSuppliedCredentials().forEach(credential => {
-    const claim = credential.getCredentialSection()
+  credentialResponse.suppliedCredentials.forEach(credential => {
+    const { claim } = credential
     response = { ...response, ...claim }
   })
 
