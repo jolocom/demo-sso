@@ -65,6 +65,7 @@ export const configureSockets = (
     await redisApi.setAsync(userId, JSON.stringify({ userId, request: credentialRequest.encode(), status: 'pending' }))
     const qrCode = await new SSO().JWTtoQR(credentialRequest.encode())
 
+    console.log(`[DEBUG] : JWT for ${userId} : ${credentialRequest.encode()}`)
     socket.emit(userId, qrCode)
   })
 
