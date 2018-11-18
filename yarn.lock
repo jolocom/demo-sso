@@ -5302,9 +5302,9 @@ jest@22.4.2:
     import-local "^1.0.0"
     jest-cli "^22.4.2"
 
-jolocom-lib@^2.1.1:
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/jolocom-lib/-/jolocom-lib-2.1.1.tgz#e5de4ae7bfe73ee8179634b24abca739184b2bf6"
+jolocom-lib@^2.2.3:
+  version "2.2.3"
+  resolved "https://registry.yarnpkg.com/jolocom-lib/-/jolocom-lib-2.2.3.tgz#1cd6bf03ecb743ce0f75f3e0f6a01ee5cebd190a"
   dependencies:
     base64url "^3.0.0"
     bip32 "^1.0.2"

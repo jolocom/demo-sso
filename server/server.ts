@@ -20,7 +20,7 @@ app.use(cors())
 
 const { getAsync, setAsync, delAsync } = configureRedisClient()
 const registry = JolocomLib.registries.jolocom.create()
-const vaultedKeyProvider = new JolocomLib.keyProvider(seed, password)
+const vaultedKeyProvider = new JolocomLib.KeyProvider(seed, password)
 
 registry.authenticate(vaultedKeyProvider, {derivationPath: JolocomLib.KeyTypes.jolocomIdentityKey, encryptionPass: password})
 .then(identityWallet => {

@@ -11,7 +11,7 @@ export const validateCredentialSignatures = async (credentialResponse: Credentia
     suppliedCredentials.map(async cred => {
       const issuer = await registry.resolve(cred.issuer)
       const issuerPublicKey = getIssuerPublicKey(cred.signer.keyId, issuer.didDocument)
-      return JolocomLib.keyProvider.verifyDigestable(issuerPublicKey, cred)
+      return JolocomLib.KeyProvider.verifyDigestable(issuerPublicKey, cred)
     })
   )
 
