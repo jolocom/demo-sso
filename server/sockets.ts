@@ -33,7 +33,7 @@ export const configureSockets = (
       {
         instant: true,
         requestedInput: {},
-        callbackURL: `${serviceUrl}/receive/`
+        callbackURL: `${serviceUrl}/credentialReceive/`
       },
       password
     )
