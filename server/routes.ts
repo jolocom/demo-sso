@@ -25,10 +25,9 @@ export const configureRoutes = async (app: Express, redisApi: RedisApi, iw: Iden
 
   /**
    * An authentication endpoint route for deep linking for demo-sso-mobile;
-   * the front end of demo-sso 'sends' the credential request via QR code using sockets
    */
 
-  app.get('/authentication-mobile/credentialRequest', async (req, res, next) => {
+  app.get('/mobile/credentialRequest', async (req, res, next) => {
     try {
       const credentialRequest = await iw.create.interactionTokens.request.share(
         {
@@ -39,6 +38,28 @@ export const configureRoutes = async (app: Express, redisApi: RedisApi, iw: Iden
       )
 
       const jwtCR = credentialRequest.encode()
+      res.send(jwtCR)
+    } catch (err) {
+      next(err)
+    }
+  })
+
+  /**
+   * An endpoint route for deep linking for demo-sso-mobile to start the credential receive flow;
+   */
+
+  app.get('/mobile/credentialOfferRequest', async (req, res, next) => {
+    try {
+      const credentialOfferRequest = await iw.create.interactionTokens.request.offer(
+        {
+          callbackURL: 'demosso://credentialoffer/',
+          instant: true,
+          requestedInput: {}
+        },
+        password
+      )
+
+      const jwtCR = credentialOfferRequest.encode()
       res.send(jwtCR)
     } catch (err) {
       next(err)
