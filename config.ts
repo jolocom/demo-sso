@@ -1,13 +1,19 @@
-// Private key associated with the service's identity
-export const privateIdentityKey = Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex')
+import { IConstraint } from 'jolocom-lib/js/interactionTokens/interactionTokens.types'
 
-// Where is your service deployed. E.g. https://demo-sso.jolocom.com
-export const serviceUrl = ''
+/**
+ * The seed to instantiate a vaulted key provider and password for seed encryption / decryption
+ * The need to persist the seed in clear text will be addressed in the next minor release
+ */
+export const seed = Buffer.from('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'hex')
+export const password = 'correct horse battery staple'
 
-// What credentials do you require during authentication, and associated constraints
+/** Where is your service deployed. E.g. https://demo-sso.jolocom.com */
+export const serviceUrl = 'https://demo-sso.jolocom.com'
+
+/** What credentials do you require during authentication, and associated constraints */
 export const credentialRequirements = [
   {
     type: ['Credential', 'ProofOfNameCredential'],
-    constraints: [{ '==': [true, true] }]
+    constraints: [] as IConstraint[]
   }
 ]

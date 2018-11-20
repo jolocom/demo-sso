@@ -33,11 +33,12 @@ Editing the service configuration file
 
 If we open the ``config.ts`` - file located in the project root directory, we will notice that there are 3 options we can configure:
 
-1. ``privateIdentityKey`` - the key associated with the service's DID, in ``Buffer`` form. In case you don't have an identity, you can create one first as described in the `getting started <>`_ section.
+1. ``seed`` - A 32 byte ``Buffer`` of random bytes, used for deriving key pairs, as explained in the the [getting started](https://jolocom-lib.readthedocs.io/en/latest/gettingStarted.html#how-to-create-a-self-sovereign-identity) section.
 
-2. ``serviceUri`` - the url that can be used reach the deployed service, if you are testing locally, the default value should suffice.
+2. ``password`` - Password used to encrypt the ``seed`` on the instance. Must be provided for any opperations involving key derivation.
+3. ``serviceUrl`` - The url that can be used reach the deployed service, if you are testing locally, the default value should suffice.
 
-3. ``credentialRequirements`` - the types of credentials required by the service. By default the service requires a ``ProofOfEmailCredential`` and a ``ProofOfNameCredential``, with no associated constraints.
+3. ``credentialRequirements`` - the types of credentials required by the service. By default the service requires a ``ProofOfNameCredential``, with no associated constraints.
 
 After the fields have been configured, the service can be started by running ``yarn start``
 
@@ -45,7 +46,7 @@ Authenticating against the local service
 ----------------------------------------
 
 Now that we have the local service running, we can open our browsers and navigate to ``http://localhost:9000/`` to be presented with the landing page.
-If you tap the button to continue with Jolocom, the service will generate a credential request (as defined [here](https://jolocom-lib.readthedocs.io/en/latest/interactionFlows.html)), encode it as a QR code, and display the resulting image
+If you tap the button to continue with Jolocom, the service will generate a credential request (as defined [here](https://jolocom-lib.readthedocs.io/en/latest/interactionFlows.html)), encode it as a QR code, and display the resulting image.
 
 At this point the presented request can be scanned using the Jolocom SmartWallet in order to generate the corresponding credential response and share it with the service.
 

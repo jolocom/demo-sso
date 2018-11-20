@@ -1,11 +1,19 @@
-import { CredentialResponse } from 'jolocom-lib/js/interactionFlows/credentialResponse/credentialResponse'
 import { JolocomLib } from 'jolocom-lib'
+import { getIssuerPublicKey } from 'jolocom-lib/js/utils/helper'
+import { CredentialResponse } from 'jolocom-lib/js/interactionTokens/credentialResponse'
 
 export const validateCredentialSignatures = async (credentialResponse: CredentialResponse): Promise<boolean> => {
-  const suppliedCredentials = credentialResponse.getSuppliedCredentials()
-  const registry = JolocomLib.registry.jolocom.create()
+  const suppliedCredentials = credentialResponse.suppliedCredentials
+  const registry = JolocomLib.registries.jolocom.create()
 
-  const credSignatureValidity = await Promise.all(suppliedCredentials.map(cred => registry.validateSignature(cred)))
+  /** The process of performing batch verifications will be improved soon */
+  const credSignatureValidity = await Promise.all(
+    suppliedCredentials.map(async cred => {
+      const issuer = await registry.resolve(cred.issuer)
+      const issuerPublicKey = getIssuerPublicKey(cred.signer.keyId, issuer.didDocument)
+      return JolocomLib.KeyProvider.verifyDigestable(issuerPublicKey, cred)
+    })
+  )
 
   if (!credSignatureValidity.every(entry => entry)) {
     throw new Error('Invalid signature on presented credentials')
@@ -16,21 +24,18 @@ export const validateCredentialSignatures = async (credentialResponse: Credentia
 
 interface IdentityData {
   id?: string
-  email: string
   givenName: string
   familyName: string
 }
 
 export const extractDataFromClaims = (credentialResponse: CredentialResponse): IdentityData => {
   let response: IdentityData = {
-    email: '',
     givenName: '',
     familyName: ''
   }
 
-  credentialResponse.getSuppliedCredentials().forEach(credential => {
-    const claim = credential.getCredentialSection()
-    response = { ...response, ...claim }
+  credentialResponse.suppliedCredentials.forEach(credential => {
+    response = { ...response, ...credential.claim }
   })
 
   return response

@@ -1,17 +1,16 @@
-import { SSO } from 'jolocom-lib/js/sso/index'
+import { SSO } from 'jolocom-lib/js/sso/sso'
 import * as io from 'socket.io'
 import { credentialRequirements, serviceUrl } from '../config'
 import * as http from 'http'
 import { DbWatcher } from './dbWatcher'
 import { IdentityWallet } from 'jolocom-lib/js/identityWallet/identityWallet'
 import { RedisApi } from './types'
-import { InteractionType } from 'jolocom-lib/js/interactionFlows/types'
-import { randomString } from '../src/utils';
 const SHA3 = require('sha3')
 
 export const configureSockets = (
   server: http.Server,
   identityWallet: IdentityWallet,
+  password: string,
   dbWatcher: DbWatcher,
   redisApi: RedisApi
 ) => {
@@ -19,49 +18,54 @@ export const configureSockets = (
 
   const baseSocket = io(server).origins('*:*')
 
-  const qrCodeSocket = baseSocket.of('/qr-code')
-  const qrCodeReceive = baseSocket.of('/qr-receive')
+  const authQrCodeSocket = baseSocket.of('/qr-code')
+  const receiveQrCodeSocket = baseSocket.of('/qr-receive')
   const dataSocket = baseSocket.of('/sso-status')
 
-  qrCodeReceive.on('connection', async socket => {
+  receiveQrCodeSocket.on('connection', async socket => {
     const { did, answer } = socket.handshake.query
 
     const didHash = SHA3.SHA3Hash()
     didHash.update(did)
-
-    const challenge = randomString(5)
-
-    await redisApi.setAsync(`ch:${didHash.digest('hex')}`, challenge)
     await redisApi.setAsync(`ans:${didHash.digest('hex')}`, answer)
 
-    const credOffer = await identityWallet.create.credentialOfferRequestJSONWebToken({
-      typ: InteractionType.CredentialOfferRequest,
-      credentialOffer: {
+    const credOfferRequest = await identityWallet.create.interactionTokens.request.offer(
+      {
         instant: true,
-        challenge: challenge,
         requestedInput: {},
-        callbackURL: `${serviceUrl}/receive/`
-      }
-    })
+        callbackURL: `${serviceUrl}/credentialReceive/`
+      },
+      password
+    )
 
-    const qrCode = await new SSO().JWTtoQR(credOffer.encode())
+    console.log(credOfferRequest.encode())
+    const qrCode = await new SSO().JWTtoQR(credOfferRequest.encode())
     socket.emit(did, qrCode)
   })
 
-  qrCodeSocket.on('connection', async socket => {
+  /**
+   * @description Used by the frontend to request credential request QR codes
+   * @param {string} userId - The session identifier
+   * @emits qrCode
+   */
+
+  authQrCodeSocket.on('connection', async socket => {
     const { userId } = socket.handshake.query
 
     const callbackURL = `${serviceUrl}/authentication/${userId}`
-
-    const credentialRequest = await identityWallet.create.credentialRequestJSONWebToken({
-      typ: InteractionType.CredentialRequest,
-      credentialRequest: {
+    const credentialRequest = await identityWallet.create.interactionTokens.request.share(
+      {
         callbackURL,
         credentialRequirements
-      }
-    })
+      },
+      password
+    )
 
+    /** Encoded credential request is saved for validation purposes later */
+    await redisApi.setAsync(userId, JSON.stringify({ userId, request: credentialRequest.encode(), status: 'pending' }))
     const qrCode = await new SSO().JWTtoQR(credentialRequest.encode())
+
+    console.log(`[DEBUG] : JWT for ${userId} : ${credentialRequest.encode()}`)
     socket.emit(userId, qrCode)
   })
 

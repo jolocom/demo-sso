@@ -1,7 +1,6 @@
 import { loginProviders } from '../reducers'
 import io from 'socket.io-client'
 import { push } from 'connected-react-router'
-import { serviceUrl } from '../../config'
 import { UserData } from '../ui/containers/types'
 import { randomString } from '../utils'
 
@@ -68,7 +67,7 @@ export const initiateReceiving = (did: string, answer: string) => {
 }
 
 const getOfferQrCode = async (did: string, answer: string): Promise<string> => {
-  const socket = io(`${serviceUrl}/qr-receive`, { query: { did, answer} })
+  const socket = io(`/qr-receive`, { query: { did, answer} })
   return new Promise<string>(resolve => {
     socket.on(did, (qrCode: string) => resolve(qrCode))
   })
@@ -76,14 +75,14 @@ const getOfferQrCode = async (did: string, answer: string): Promise<string> => {
 
 
 const getQrCode = async (randomId: string): Promise<string> => {
-  const socket = io(`${serviceUrl}/qr-code`, { query: { userId: randomId } })
+  const socket = io(`/qr-code`, { query: { userId: randomId } })
   return new Promise<string>(resolve => {
     socket.on(randomId, (qrCode: string) => resolve(qrCode))
   })
 }
 
 export const awaitUserData = async (randomId: string): Promise<string> => {
-  const socket = io(`${serviceUrl}/sso-status`, {
+  const socket = io(`/sso-status`, {
     query: { userId: randomId }
   })
 
