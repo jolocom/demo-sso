@@ -3,7 +3,7 @@
     "types":["node"],
     "baseUrl": ".",
     "outDir": "./build/",
-    "module": "es2015",
+    "module": "commonjs",
     "target": "es2017",
     "lib": ["dom", "es2017"],
     "sourceMap": true,
@@ -25,9 +25,6 @@
     "acceptance-tests",
     "webpack",
     "jest",
-    "src/setupTests.ts"
-  ],
-  "include": [
-    "./src/**/*"
+    "src"
   ]
 }
