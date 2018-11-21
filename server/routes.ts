@@ -52,7 +52,7 @@ export const configureRoutes = async (app: Express, redisApi: RedisApi, iw: Iden
     try {
       const credentialOfferRequest = await iw.create.interactionTokens.request.offer(
         {
-          callbackURL: 'demosso://credentialoffer/',
+          callbackURL: `${serviceUrl}/credentialReceive/`,
           instant: true,
           requestedInput: {}
         },
