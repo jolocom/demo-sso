@@ -8,7 +8,6 @@ const { token } = require('./token.js')
   '[DEBUG] : JWT for [USER_ID] : eyJ0eXAi...'
 */
 
-const randomUserId = 'o1acb'
 
 /**
  * Defining a mock identity to authenticate as
@@ -24,7 +23,7 @@ const password = 'secret'
  */
 
 const generateResponse = async requestJWT => {
-  const vault = new JolocomLib.keyProvider(seed, password)
+  const vault = new JolocomLib.KeyProvider(seed, password)
   const registry = JolocomLib.registries.jolocom.create()
 
   const identityWallet = await registry.authenticate(vault, {
@@ -44,14 +43,12 @@ const generateResponse = async requestJWT => {
     password
   )
 
-  const request = JolocomLib.parse.interactionToken.fromJWT(requestJWT)
   const response = await identityWallet.create.interactionTokens.response.share(
     {
-      callbackURL: request.interactionToken.callbackURL,
+      callbackURL: '192.168.8.100:8000/authenticate',
       suppliedCredentials: [credential.toJSON()]
     },
-    password,
-    request
+    password
   )
 
   sendToken(response.encode())
@@ -64,9 +61,9 @@ const generateResponse = async requestJWT => {
 
 const sendToken = responseJWT => {
   const options = {
-    hostname: 'localhost',
-    port: 9000,
-    path: `/authentication/${randomUserId}`,
+    hostname: '192.168.8.100',
+    port: 8000,
+    path: '/authenticate',
     method: 'POST',
     headers: { 'Content-Type': 'application/json' }
   }
