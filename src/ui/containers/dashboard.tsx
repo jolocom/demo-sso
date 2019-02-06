@@ -2,7 +2,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { DefaultState, loginProviders } from '../../reducers/index'
 import { UserData } from './types'
-import { initiateReceiving, initiateLogin } from '../../actions/index'
+import { initiateReceiving, initiateLogin, initiatePayment } from '../../actions/index'
 import { LoginDialog } from '../components/dialog'
 import { DashboardComponent } from '../components/dashboard'
 
@@ -14,37 +14,9 @@ interface State {
 interface Props {
   userData: UserData
   qrReceiveCode: string
-  getCredential: (did: string, answer: string) => void
+  issueCredential: (did: string, answer: string) => void
+  requestPayment: (userId: string) => void
   handleInput: (el: React.MouseEvent<HTMLElement>) => void
-}
-
-const styles = {
-  container: {
-    backgroundColor: 'black',
-    height: '100vh',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'space-around'
-  } as React.CSSProperties,
-  banner: {
-    background: 'url(/img/banner.jpg) center no-repeat',
-    height: '260px',
-    width: '100%',
-    backgroundSize: 'auto 100%'
-  },
-  button: {
-    margin: '0px',
-    borderRadius: '4px',
-    padding: '34dp 12dp 34dp 16dp'
-  },
-  text: {
-    color: 'white'
-  },
-  userDataText: {
-    color: 'white',
-    marginTop: '15px'
-  }
 }
 
 export class DashboardContainer extends React.Component<Props, State> {
@@ -61,8 +33,13 @@ export class DashboardContainer extends React.Component<Props, State> {
     this.setState({ userInput: e.currentTarget.value })
   }
 
-  handleButtonClick = (el: React.MouseEvent<HTMLElement>) => {
-    this.props.getCredential(this.props.userData.did, this.state.userInput)
+  handleIssueCredential = (el: React.MouseEvent<HTMLElement>) => {
+    this.props.issueCredential(this.props.userData.did, this.state.userInput)
+    this.setState({showDialog: true})
+  }
+
+  handleRequestPayment = () => {
+    this.props.requestPayment(this.props.userData.userId)
     this.setState({showDialog: true})
   }
 
@@ -78,7 +55,8 @@ export class DashboardContainer extends React.Component<Props, State> {
           name={givenName}
           handleUserInput={this.handleUserInput}
           inputValue={userInput}
-          handleButtonClick={this.handleButtonClick}
+          handleIssueCredential={this.handleIssueCredential}
+          handleRequestPayment={this.handleRequestPayment}
         />
         <LoginDialog
           provider={loginProviders.jolocom}
@@ -100,7 +78,8 @@ const mapStateToProps = (state: DefaultState) => {
 
 const mapDispatchToProps = (dispatch: Function) => {
   return {
-    getCredential: (did: string, answer: string) => dispatch(initiateReceiving(did, answer)),
+    issueCredential: (did: string, answer: string) => dispatch(initiateReceiving(did, answer)),
+    requestPayment: (userId: string) => dispatch(initiatePayment(userId)),
     initiateLogin: (provider: loginProviders) => dispatch(initiateLogin(provider))
   }
 }

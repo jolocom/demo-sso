@@ -45,16 +45,17 @@ export const initiateLogin = (loginProvider: loginProviders) => {
     }
 
     const randomId = randomString(5)
-    const qrCode = await getQrCode(randomId)
+    const authQrCode = await getAuthQrCode(randomId)
 
-    dispatch(setQRCode(qrCode))
+    dispatch(setQRCode(authQrCode))
     dispatch(showDialog(loginProvider))
 
     const data = await awaitUserData(randomId)
     const parsed = JSON.parse(data)
+    const userData = { ...parsed.data, userId: randomId } 
 
     dispatch(setQRCode(undefined))
-    dispatch(setUserData(parsed))
+    dispatch(setUserData(userData))
     dispatch(push('/dashboard'))
   }
 }
@@ -66,27 +67,40 @@ export const initiateReceiving = (did: string, answer: string) => {
   }
 }
 
+export const initiatePayment = (userId: string) => {
+  return async (dispatch: Function) => {
+    const qrCode = await getPaymentRequestQrCode(userId)
+    dispatch(setReceivedQr(qrCode))
+  }
+}
+
+export const getPaymentRequestQrCode = (userId: string) => {
+  const socket = io(`/qr-payment`, { query: { userId } })
+  return new Promise<string>(resolve => {
+    socket.on(userId, (qrCode: string) => resolve(qrCode))
+  })
+}
+
 const getOfferQrCode = async (did: string, answer: string): Promise<string> => {
-  const socket = io(`/qr-receive`, { query: { did, answer} })
+  const socket = io(`/qr-credReceive`, { query: { did, answer } })
   return new Promise<string>(resolve => {
     socket.on(did, (qrCode: string) => resolve(qrCode))
   })
 }
 
-
-const getQrCode = async (randomId: string): Promise<string> => {
-  const socket = io(`/qr-code`, { query: { userId: randomId } })
+const getAuthQrCode = async (randomId: string): Promise<string> => {
+  const socket = io(`/qr-auth`, { query: { userId: randomId } })
   return new Promise<string>(resolve => {
     socket.on(randomId, (qrCode: string) => resolve(qrCode))
   })
 }
 
-export const awaitUserData = async (randomId: string): Promise<string> => {
+export const awaitUserData = async (userId: string): Promise<string> => {
   const socket = io(`/sso-status`, {
-    query: { userId: randomId }
+    query: { userId }
   })
 
   return new Promise<string>(resolve => {
-    socket.on(randomId, (data: string) => resolve(data))
+    socket.on(userId, (data: string) => resolve(data))
   })
 }
