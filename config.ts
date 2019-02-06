@@ -8,7 +8,7 @@ export const seed = Buffer.from('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 export const password = 'correct horse battery staple'
 
 /** Where is your service deployed. E.g. https://demo-sso.jolocom.com */
-export const serviceUrl = 'https://demo-sso.jolocom.com'
+export const serviceUrl = 'https://demo-payments-jolo.herokuapp.com/'
 
 /** What credentials do you require during authentication, and associated constraints */
 export const credentialRequirements = [
