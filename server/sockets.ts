@@ -99,7 +99,7 @@ export const configureSockets = (
       description: `Special edition Jolocom t-shirt`,
       transactionDetails: {
         receiverAddress: serviceEthAddress,
-        amountInEther: `0.0033`
+        amountInEther: `0.00033`
       }
     }, password)
 

@@ -66,7 +66,7 @@ export const DashboardComponent: React.SFC<Props> = props => {
           color={'primary'}
         />
       </div>
-      <div style={welcomeMsg}>Buy the limited edition Jolocom t-shirt for 0.033 ETH</div>
+      <div style={welcomeMsg}>Buy the limited edition Jolocom t-shirt for 0.0033 ETH</div>
         <div style={button}>
           <AbstractedButton
             text="Buy"

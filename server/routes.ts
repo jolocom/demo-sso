@@ -206,11 +206,19 @@ export const configureRoutes = async (app: Express, redisApi: RedisApi, iw: Iden
     try {
       const localRecord = await getAsync(userId)
       const encodedRequest: string = JSON.parse(localRecord).paymentRequest
-      console.log('payment request: ', encodedRequest)
+
       const request: JSONWebToken<PaymentRequest> = JolocomLib.parse.interactionToken.fromJWT(encodedRequest)
       const response: JSONWebToken<PaymentResponse> = JolocomLib.parse.interactionToken.fromJWT(token)
-
+      console.log('payment response: ', response)
       await iw.validateJWT(response, request)
+
+      const parsedUserData = JSON.parse(localRecord)
+      const userData = {
+        ...parsedUserData.userData,
+        txHash: response.interactionToken.txHash
+      }
+
+      await setAsync(userId, JSON.stringify({ data: userData }))
 
       res.json('OK')
     } catch (err) {
