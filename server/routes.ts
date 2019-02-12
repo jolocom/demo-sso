@@ -36,7 +36,7 @@ export const configureRoutes = async (app: Express, redisApi: RedisApi, iw: Iden
     try {
       const credentialRequest = await iw.create.interactionTokens.request.share(
         {
-          callbackURL: 'demosso://authenticate/',
+          callbackURL: 'demosso://interaction/',
           credentialRequirements
         },
         password
@@ -83,11 +83,11 @@ export const configureRoutes = async (app: Express, redisApi: RedisApi, iw: Iden
       }))
 
       const paymentRequest = await iw.create.interactionTokens.request.payment({
-        callbackURL: 'demosso://payment/',
+        callbackURL: 'demosso://interaction/',
         description: 'Buy the Jolocom t-shirt on the go',
         transactionDetails: {
           receiverAddress: serviceEthAddress,
-          amountInEther: '0.001'
+          amountInEther: '0.00001'
         }}, password)
 
       const jwtCR = paymentRequest.encode()
@@ -209,7 +209,7 @@ export const configureRoutes = async (app: Express, redisApi: RedisApi, iw: Iden
 
       const request: JSONWebToken<PaymentRequest> = JolocomLib.parse.interactionToken.fromJWT(encodedRequest)
       const response: JSONWebToken<PaymentResponse> = JolocomLib.parse.interactionToken.fromJWT(token)
-      console.log('payment response: ', response)
+
       await iw.validateJWT(response, request)
 
       const parsedUserData = JSON.parse(localRecord)
