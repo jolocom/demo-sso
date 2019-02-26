@@ -91,24 +91,7 @@ export const configureRoutes = async (app: Express, redisApi: RedisApi, iw: Iden
         }}, password)
 
       const jwtCR = paymentRequest.encode()
-      
-      /**
-       * below is the example for the demo mock
-       * respose object includes the params needed on UI of smart wallet
-       * note that you need to encode res data in base64
-       */
-
-      const response = {
-        issuer: 'did:jolo:testdemopayment',
-        callbackURL: 'demosso://demo/',
-        description: 'Buy the Jolocom t-shirt on the go',
-        transactionDetails: {
-          receiverAddress: serviceEthAddress,
-          amountInEther: '0.00001'
-        }
-      }
-  
-      res.send(Buffer.from(JSON.stringify(response)).toString('base64'))
+      res.send(jwtCR)
     } catch (err) {
       next(err)
     }
