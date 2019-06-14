@@ -24,7 +24,7 @@ const password = 'secret'
  */
 
 const generateResponse = async requestJWT => {
-  const vault = new JolocomLib.keyProvider(seed, password)
+  const vault = new JolocomLib.KeyProvider(seed, password)
   const registry = JolocomLib.registries.jolocom.create()
 
   const identityWallet = await registry.authenticate(vault, {
