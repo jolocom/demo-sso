@@ -12,6 +12,7 @@ export interface DefaultState {
     qrReceiveCode: string
   }
   userData: {
+    userId: string
     did: string
     email: string
     givenName: string
@@ -26,6 +27,7 @@ export const defaultState: DefaultState = {
     qrReceiveCode: ''
   },
   userData: {
+    userId: '',
     did: '',
     email: '',
     givenName: '',
@@ -36,7 +38,7 @@ export const defaultState: DefaultState = {
 export function rootReducer(state = defaultState, action: any) {
   switch (action.type) {
     case 'USER_DATA_SET':
-      return {...state, userData: {...action.value.data}}
+      return {...state, userData: {...action.value}}
     case 'USER_DATA_RESET':
       return {...state, userData: defaultState.userData}
     case 'DIALOG_SHOW':

@@ -7,7 +7,8 @@ interface Props {
   name: string
   inputValue: string
   handleUserInput: (e: React.FormEvent<HTMLInputElement>) => void
-  handleButtonClick: (e: React.MouseEvent<HTMLElement>) => void
+  handleIssueCredential: (e: React.MouseEvent<HTMLElement>) => void
+  handleRequestPayment: (e: React.MouseEvent<HTMLElement>) => void
 }
 
 const styles = {
@@ -34,11 +35,18 @@ const styles = {
   button: {
     marginBottom: '3%',
     width: '15%'
-  }
+  },
+  paymentArea: {
+    paddingTop: '10%',
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between'
+  } as React.CSSProperties
 }
+
 export const DashboardComponent: React.SFC<Props> = props => {
-  const { container, responseArea, welcomeMsg, button } = styles
-  const { name, inputValue, handleButtonClick, handleUserInput } = props
+  const { container, responseArea, welcomeMsg, button, paymentArea } = styles
+  const { name, inputValue, handleIssueCredential, handleUserInput, handleRequestPayment } = props
 
   return (
     <div style={container}>
@@ -51,7 +59,21 @@ export const DashboardComponent: React.SFC<Props> = props => {
         </div>
       </div>
       <div style={button}>
-        <AbstractedButton text="Receive" onClick={handleButtonClick} color={'primary'} />
+        <AbstractedButton
+          text="Get Claim"
+          onClick={handleIssueCredential}
+          imageName={'JO_icon.svg'}
+          color={'primary'}
+        />
+      </div>
+      <div style={welcomeMsg}>Buy the limited edition Jolocom t-shirt for 0.0033 ETH</div>
+        <div style={button}>
+          <AbstractedButton
+            text="Buy"
+            onClick={handleRequestPayment}
+            imageName={`JO_icon.svg`}
+            color={'primary'}
+          />
       </div>
     </div>
   )

@@ -21,7 +21,7 @@
     "history": "^4.7.2",
     "isomorphic-fetch": "^2.2.1",
     "jest": "22.4.2",
-    "jolocom-lib": "^2.2.9",
+    "jolocom-lib": "^2.2.12",
     "material-ui": "^0.20.2",
     "promise": "8.0.1",
     "react": "^16.4.2",

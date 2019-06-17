@@ -27,13 +27,14 @@ export const LoginDialog: React.SFC<Props> = props => {
 
   return (
     <ModifiedDialog 
-    onExit={props.onClose}
-    onEscapeKeyDown={props.onClose}
-    onBackdropClick={props.onClose}
-    open={props.open}>
+      onExit={props.onClose}
+      onEscapeKeyDown={props.onClose}
+      onBackdropClick={props.onClose}
+      open={props.open}
+    >
       <DialogTitle> {title} </DialogTitle>
       <span> {text} </span>
-      {isJolocom ? <img src={props.qrCode} width={'100%'}/> : null}
+      { isJolocom ? <img src={props.qrCode} width={'100%'}/> : null }
     </ModifiedDialog>
   )
 }

@@ -5,11 +5,14 @@ import { extractDataFromClaims } from '../src/utils/'
 import { RedisApi } from './types'
 import { JSONWebToken } from 'jolocom-lib/js/interactionTokens/JSONWebToken'
 import { IdentityWallet } from 'jolocom-lib/js/identityWallet/identityWallet'
-import { keyIdToDid } from 'jolocom-lib/js/utils/helper'
+import { keyIdToDid, publicKeyToAddress } from 'jolocom-lib/js/utils/helper'
 import { CredentialResponse } from 'jolocom-lib/js/interactionTokens/credentialResponse'
 import { CredentialOffer } from 'jolocom-lib/js/interactionTokens/credentialOffer'
 import { JolocomLib } from 'jolocom-lib'
 import { CredentialRequest } from 'jolocom-lib/js/interactionTokens/credentialRequest'
+import { PaymentRequest } from 'jolocom-lib/js/interactionTokens/paymentRequest'
+import { PaymentResponse } from 'jolocom-lib/js/interactionTokens/paymentResponse'
+
 
 export const configureRoutes = async (app: Express, redisApi: RedisApi, iw: IdentityWallet, password: string) => {
   const { setAsync, getAsync } = redisApi
@@ -23,6 +26,8 @@ export const configureRoutes = async (app: Express, redisApi: RedisApi, iw: Iden
     res.sendFile(path.join(__dirname, `../dist/img/${name}`))
   })
 
+  /// Endpoints for demo-sso-mobile app  ///
+
   /**
    * An authentication endpoint route for deep linking for demo-sso-mobile;
    */
@@ -31,7 +36,7 @@ export const configureRoutes = async (app: Express, redisApi: RedisApi, iw: Iden
     try {
       const credentialRequest = await iw.create.interactionTokens.request.share(
         {
-          callbackURL: 'demosso://authenticate/',
+          callbackURL: 'demosso://interaction/',
           credentialRequirements
         },
         password
@@ -65,6 +70,34 @@ export const configureRoutes = async (app: Express, redisApi: RedisApi, iw: Iden
       next(err)
     }
   })
+
+  /**
+   * Route for mobile payment interaction
+   */
+
+  app.get('/mobile/paymentRequest', async (req, res, next) => {
+    try {
+      const serviceEthAddress = publicKeyToAddress(iw.getPublicKey({
+        derivationPath: JolocomLib.KeyTypes.ethereumKey,
+        encryptionPass: password
+      }))
+
+      const paymentRequest = await iw.create.interactionTokens.request.payment({
+        callbackURL: 'demosso://interaction/',
+        description: 'Buy the Jolocom t-shirt on the go',
+        transactionDetails: {
+          receiverAddress: serviceEthAddress,
+          amountInEther: '0.00001'
+        }}, password)
+
+      const jwtCR = paymentRequest.encode()
+      res.send(jwtCR)
+    } catch (err) {
+      next(err)
+    }
+  })
+
+  /// web page endpoints ///
 
   /**
    * Route which expects the credential response from user
@@ -160,6 +193,34 @@ export const configureRoutes = async (app: Express, redisApi: RedisApi, iw: Iden
       )
 
       res.json({ token: credentialReceive.encode() })
+    } catch (err) {
+      next(err)
+    }
+  })
+
+  
+  app.post('/payment-confirmation/:userId', async (req, res, next) => {
+    const { userId } = req.params
+    const { token } = req.body
+    
+    try {
+      const localRecord = await getAsync(userId)
+      const encodedRequest: string = JSON.parse(localRecord).paymentRequest
+
+      const request: JSONWebToken<PaymentRequest> = JolocomLib.parse.interactionToken.fromJWT(encodedRequest)
+      const response: JSONWebToken<PaymentResponse> = JolocomLib.parse.interactionToken.fromJWT(token)
+
+      await iw.validateJWT(response, request)
+
+      const parsedUserData = JSON.parse(localRecord)
+      const userData = {
+        ...parsedUserData.userData,
+        txHash: response.interactionToken.txHash
+      }
+
+      await setAsync(userId, JSON.stringify({ data: userData }))
+
+      res.json('OK')
     } catch (err) {
       next(err)
     }
