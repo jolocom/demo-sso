@@ -1,3 +1,8 @@
+IMPORTANT
+==========
+**This repository is DEPRECATED and will not be updated.**  
+For an examples using the jolocom-lib, see [this demo](https://gitlab.com/jolocom/municipal-service) or the [generic backend](https://github.com/jolocom/generic-backend).
+
 Install
 ----------------------------------------
 
